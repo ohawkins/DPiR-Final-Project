@@ -5,11 +5,7 @@ library(ggplot2)
 # National Toplines
 df <- read_csv('presidential_national_toplines_2020.csv')
 df$modeldate <- as.Date(df$modeldate, format = "%m/%d/%Y")
-# df$cycle <- factor(df$cycle)
-# df$branch <- factor(df$branch)
-# df$model <- factor(df$model)
-# df$candidate_inc <- factor(df$candidate_inc)
-# df$candidate_chal <- factor(df$candidate_chal)
+
 df <- subset(df, select = -c(cycle, 
                              branch, 
                              model, 
@@ -23,10 +19,12 @@ df <- subset(df, select = -c(cycle,
                              national_voteshare_3rd_hi,
                              national_voteshare_3rd_lo,
                              ecwin_3rd,
-                             national_voteshare_3rd))
+                             national_voteshare_3rd,
+                             simulations))
 
-p_date_win_inc <- qplot(df$modeldate, df$popwin_inc, data = df, geom = 'point')
-
+p_date_ev_inc <- qplot(modeldate, ev_inc, data = df, geom = 'point')
+p_date_popwin_inc <- qplot(modeldate, popwin_inc, data = df, geom = 'point')
+p <- qplot(modeldate, ec_nomajority, data = df, geom = 'point')
 
 
 # Polls
@@ -42,5 +40,3 @@ df$state <- factor(df$state)
 df <- subset(df, select = -c(cycle, tracking))
 
 df <- read_csv('presidential_poll_averages_2020.csv')
-
-
