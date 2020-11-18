@@ -47,7 +47,7 @@ df$modeldate <- as.Date(df$modeldate, format = '%m/%d/%Y')
 df$candidate_name <- factor(df$candidate_name)
 df <- subset(df, select = -cycle)
 
-#Scenrio Analysis and visualization 
+#Scenrio Analysis and Visualization 
 df_scenario<-read_csv("Presidential_scenario_analysis_2020_nov2.csv")
 mycols<-c("cycle","branch","modeldate","candidate_inc","candidate_chal","scenario_id","probability","scenario_description","simulations")
 df_scenario<-df_scenario[,mycols]
