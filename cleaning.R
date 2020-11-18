@@ -46,3 +46,15 @@ df$state <- factor(df$state)
 df$modeldate <- as.Date(df$modeldate, format = '%m/%d/%Y')
 df$candidate_name <- factor(df$candidate_name)
 df <- subset(df, select = -cycle)
+
+#Scenrio Analysis and visualization 
+df_scenario<-read_csv("Presidential_scenario_analysis_2020_nov2.csv")
+mycols<-c("cycle","branch","modeldate","candidate_inc","candidate_chal","scenario_id","probability","scenario_description","simulations")
+df_scenario<-df_scenario[,mycols]
+df_scenario$modeldate<-(as.Date(df_scenario$modeldate,"%m/%d/%y"))
+df_scenario$scenario_id<-factor(df_scenario$scenario_id)
+
+
+qplot(probability,scenario_description,data= df_scenario,geom="point")
+qplot(probability,scenario_description,data= df_scenario,geom="bin2d")
+qplot(probability,scenario_description,data= df_scenario,geom="boxplot")
