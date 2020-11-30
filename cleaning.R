@@ -58,7 +58,7 @@ df_scenario$scenario_id<-factor(df_scenario$scenario_id)
 qplot(probability,scenario_description,data= df_scenario,geom="point")
 qplot(probability,scenario_description,data= df_scenario,geom="bin2d")
 qplot(probability,scenario_description,data= df_scenario,geom="boxplot")
-
+ggsave("boxplot.png",plot=last_plot() , dpi=600)
 
 ### electoral college vs popular vote cleaning
 
