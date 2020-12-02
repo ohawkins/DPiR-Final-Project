@@ -61,6 +61,8 @@ qplot(probability,scenario_description,data= df_scenario,geom="boxplot")
 ggsave("boxplot.png",plot=last_plot() , dpi=600)
 
 ### Presidential electoral vote probabilities
+library(reshape2)
+
 df <- read_csv("presidential_ev_probabilities_2020_oct28.csv")
 df$cycle <- NULL
 df$branch <- NULL
@@ -84,6 +86,5 @@ p <- ggplot(df2, aes(`Num Electoral Votes`, value, col = variable)) +
   geom_point()
 p <- p + scale_color_brewer(palette = "Set1", name = "Candidate", labels = c("Trump", "Biden")) + xlab("Total Electoral Votes") + ylab("Probability") + geom_vline(xintercept = 270, linetype = "dashed") + ggtitle("Forecasted probability of each EC outcome by candidate") + labs(subtitle = "(as of October 28th)") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
 p
-ggsave("EVProbPlot.png", plot = p, width = 6, height = 4, units = "in")
-
+ggsave("EVProbPlot.png", plot = p, width = 6, height = 4, units = "in", dpi = 600)
 
