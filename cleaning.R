@@ -60,50 +60,30 @@ qplot(probability,scenario_description,data= df_scenario,geom="bin2d")
 qplot(probability,scenario_description,data= df_scenario,geom="boxplot")
 ggsave("boxplot.png",plot=last_plot() , dpi=600)
 
-### electoral college vs popular vote cleaning
-
-df <- read_csv("electoral_college_vs_popvote_oct28.csv")
+### Presidential electoral vote probabilities
+df <- read_csv("presidential_ev_probabilities_2020_oct28.csv")
 df$cycle <- NULL
 df$branch <- NULL
 df$model <- NULL
-df$candidate_3rd <- NULL
-df$ecwin_3rd <- NULL
-df$timestamp <- NULL
 df$modeldate <- as.Date(df$modeldate, format = "%m/%d/%Y")
-df <- rename(df, "Date" = "modeldate",
-             "Incumbent" = "candidate_inc",
-             "Challenger" = "candidate_chal", 
-             "LB popular vote" = "lower_bin_text",
-             "UB popular vote" = "upper_bin_text", 
-             "Trump wins EC" = "ecwin_inc",
-             "Biden wins EC" = "ecwin_chal",
-             "Nobody wins EC" = "ecwin_nomajority", 
-             "Trump EC votes" = "total_ev_inc",
-             "LB Trump EC votes" = "ev_inc_lo", 
-             "UB Trump EC votes" = "ev_inc_hi",
-             "Biden EC votes" = "total_ev_chal",
-             "LB Biden EC votes" = "ev_chal_lo",
-             "UB Biden EC votes" = "ev_chal_hi",
-             "Num sims" = "count",
-             "Total sims" = "simulations")
+df$candidate_3rd <- NULL
+df$evprob_3rd <- NULL
+df$simulations <- NULL
+df$timestamp <- NULL
+df <- rename(df, "Incumbent" = "candidate_inc",
+             "Challenger" = "candidate_chal",
+             "Date" = "modeldate",
+             "Num Electoral Votes" = "total_ev", 
+             "Inc Chance of Winning EV" = "evprob_inc", 
+             "Chal Chance of Winning EV" = "evprob_chal")
 
-df$winner <- df$`Trump wins EC` > 0.5
-df$winner <- as.numeric(df$winner)
-df$winner <- as.character(df$winner)
-df$winner[df$winner == 1] <- "Trump"
-df$winner[df$winner == 0] <- "Biden"
-df$winner <- factor(df$winner)
+df2 <- df[, c(4,5,6)]
+df2 <- melt(df2, id.vars = c("Num Electoral Votes"))
 
-p <- qplot(`Num sims`,
-      data = df, 
-      geom = "histogram",
-      binwidth = 400,
-      fill = winner)
-
-p <- p + scale_fill_manual(
-  values = alpha(c("blue", "red"), .7),
-  name = "Winner")
-
-p <- p + xlab("Simulations per outcome")
-p <- p + ylab("Frequency")
+p <- ggplot(df2, aes(`Num Electoral Votes`, value, col = variable)) +
+  geom_point()
+p <- p + scale_color_brewer(palette = "Set1", name = "Candidate", labels = c("Trump", "Biden")) + xlab("Total Electoral Votes") + ylab("Probability") + geom_vline(xintercept = 270, linetype = "dashed") + ggtitle("Forecasted probability of each EC outcome by candidate") + labs(subtitle = "(as of October 28th)") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
 p
+ggsave("EVProbPlot.png", plot = p, width = 6, height = 4, units = "in")
+
+
