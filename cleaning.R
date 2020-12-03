@@ -133,6 +133,8 @@ p <- qplot(df$winner, df$`Num sims`, data = df, geom = "boxplot", color = winner
 p <- p + xlab("Winner") + ylab("Number of Sims")
 p <- p + scale_color_manual(values = c("Biden" = "blue",
                                        "Trump" = "red"))
+p <- p + ggtitle("Winners per simulation", subtitle = "(as of October 28th)") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+p
 
 ggsave("ECvsPop.png", plot = p, width = 6, height = 4, dpi = 600)
 
