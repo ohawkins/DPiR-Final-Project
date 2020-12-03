@@ -160,4 +160,74 @@ median(df_ecvspop$`Trump EC votes`)
 mean(df_ecvspop$`Biden EC votes`)
 mean(df_ecvspop$`Trump EC votes`)
 
+###############################################
 
+# Function
+qp <- function(x = '', y = '', geo = '') {
+    p <- qplot(x, y, data = df, geom = geo)
+    p
+}
+
+# National Toplines
+df_nat_toplines <- read_csv('presidential_national_toplines_2020_nov2.csv')
+df_nat_toplines <- subset(df_nat_toplines, select = -c(cycle, 
+                             branch, 
+                             model, 
+                             candidate_inc, 
+                             candidate_chal, 
+                             candidate_3rd,
+                             popwin_3rd,
+                             ev_3rd,
+                             ev_3rd_hi,
+                             ev_3rd_lo,
+                             national_voteshare_3rd_hi,
+                             national_voteshare_3rd_lo,
+                             ecwin_3rd,
+                             national_voteshare_3rd,
+                             simulations))
+df_nat_toplines$modeldate <- as.Date(df_nat_toplines$modeldate, format = "%m/%d/%Y")
+
+p_date_ev_inc <- qplot(modeldate, ev_inc, data = df_nat_toplines, geom = 'point', color = (ev_inc_hi-ev_inc_lo))
+p_date_ev_inc <- p_date_ev_inc + ggtitle('Forecasted # of Electoral Votes for Trump') 
+p_date_ev_inc <- p_date_ev_inc + xlab('Date') 
+p_date_ev_inc <- p_date_ev_inc + ylab('Votes')
+p_date_ev_inc <- p_date_ev_chal + ylim(190, 350)
+p_date_ev_inc <- p_date_ev_inc + scale_color_gradient(name = "range", high = 'white', low = 'red')
+
+p_date_ev_chal <- qplot(modeldate, ev_chal, data = df_nat_toplines, geom = 'point', color = (ev_chal_hi-ev_chal_lo))
+p_date_ev_chal <- p_date_ev_chal + ggtitle('Forecasted # of Electoral Votes for Biden') 
+p_date_ev_chal <- p_date_ev_chal + xlab('Date') 
+p_date_ev_chal <- p_date_ev_chal + ylab('Votes')
+p_date_ev_chal <- p_date_ev_chal + ylim(190, 350)
+p_date_ev_chal <- p_date_ev_chal + scale_color_gradient(name = "range", high = 'white', low = 'dodgerblue3')
+
+p_date_popwin_inc <- qp(df_nat_toplines$modeldate, df_nat_toplines$popwin_inc, 'point')
+p_date_popwin_inc <- p_date_popwin_inc + ylab('Probability of Trump Winning the Popular Vote')
+p_date_popwin_inc <- p_date_popwin_inc + xlab('Date')
+p_date_popwin_inc <- p_date_popwin_inc + ylim(0, .24)
+
+p_date_vturnout <- qp(df_nat_toplines$modeldate, df_nat_toplines$national_turnout, 'point')
+p_date_vturnout <- p_date_vturnout + scale_x_date(limits = as.Date(c('2020-09-01', '2020-11-02')), name = 'Date')
+p_date_vturnout <- p_date_vturnout + scale_y_continuous('Predicted Voter Turnout')
+
+# Polls
+df_polls <- read_csv('presidential_polls_2020_nov2.csv')
+df_polls$startdate <- as.Date(df_polls$startdate, format = "%m/%d/%Y")
+df_polls$enddate <- as.Date(df_polls$enddate, format = "%m/%d/%Y")
+df_polls$candidate_name <- factor(df_polls$candidate_name)
+df_polls$pollster <- factor(df_polls$pollster)
+df_polls$population <- factor(df_polls$population)
+df_polls$modeldate <- as.Date(df_polls$modeldate, format = "%m/%d/%Y")
+df_polls$state <- factor(df_polls$state)
+df_polls <- subset(df_polls, select = -c(cycle, tracking))
+
+#qp(df_polls$candidate_name, df_polls$influence, 'point')
+
+# Presidential poll averages
+df_poll_avgs <- read_csv('presidential_poll_averages_2020_nov2.csv')
+df_poll_avgs$state <- factor(df_poll_avgs$state)
+df_poll_avgs$modeldate <- as.Date(df_poll_avgs$modeldate, format = '%m/%d/%Y')
+df_poll_avgs$candidate_name <- factor(df_poll_avgs$candidate_name)
+df_poll_avgs <- subset(df_poll_avgs, select = -cycle)
+
+#qp(df_poll_avgs$modeldate, df_poll_avgs$pct_estimate, 'point')
