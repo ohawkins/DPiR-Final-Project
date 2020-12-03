@@ -54,8 +54,8 @@ df_scenario<-df_scenario[,mycols]
 df_scenario$modeldate<-(as.Date(df_scenario$modeldate,"%m/%d/%y"))
 df_scenario$scenario_id<-factor(df_scenario$scenario_id)
 
-qplot(probability,scenario_description,data= df_scenario,geom="boxplot")
-ggsave("boxplot.png",plot=last_plot() , dpi=600)
+scenario_q<-qplot(probability,scenario_description,data= df_scenario,geom="boxplot")
+#ggsave("boxplot.png",plot=last_plot() , dpi=600)
 
 ### Presidential electoral vote probabilities
 library(reshape2)
