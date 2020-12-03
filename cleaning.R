@@ -65,7 +65,7 @@ df_evprob <- read_csv("presidential_ev_probabilities_2020_oct28.csv")
 df_evprob$cycle <- NULL
 df_evprob$branch <- NULL
 df_evprob$model <- NULL
-df_evprob$modeldate <- as.Date(df$modeldate, format = "%m/%d/%Y")
+df_evprob$modeldate <- as.Date(df_evprob$modeldate, format = "%m/%d/%Y")
 df_evprob$candidate_3rd <- NULL
 df_evprob$evprob_3rd <- NULL
 df_evprob$simulations <- NULL
