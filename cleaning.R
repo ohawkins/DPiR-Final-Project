@@ -1,6 +1,8 @@
 
 library(readr)
 library(ggplot2)
+library(dplyr)
+library(reshape2)
 
 # National Toplines
 df <- read_csv('presidential_national_toplines_2020_oct28.csv')
@@ -57,53 +59,59 @@ df_scenario$scenario_id<-factor(df_scenario$scenario_id)
 scenario_q<-qplot(probability,scenario_description,data= df_scenario,geom="boxplot")
 #ggsave("boxplot.png",plot=last_plot() , dpi=600)
 
+########
 ### Presidential electoral vote probabilities
-library(reshape2)
-
-df <- read_csv("presidential_ev_probabilities_2020_oct28.csv")
-df$cycle <- NULL
-df$branch <- NULL
-df$model <- NULL
-df$modeldate <- as.Date(df$modeldate, format = "%m/%d/%Y")
-df$candidate_3rd <- NULL
-df$evprob_3rd <- NULL
-df$simulations <- NULL
-df$timestamp <- NULL
-df <- rename(df, "Incumbent" = "candidate_inc",
+df_evprob <- read_csv("presidential_ev_probabilities_2020_oct28.csv")
+df_evprob$cycle <- NULL
+df_evprob$branch <- NULL
+df_evprob$model <- NULL
+df_evprob$modeldate <- as.Date(df$modeldate, format = "%m/%d/%Y")
+df_evprob$candidate_3rd <- NULL
+df_evprob$evprob_3rd <- NULL
+df_evprob$simulations <- NULL
+df_evprob$timestamp <- NULL
+df_evprob <- rename(df_evprob, "Incumbent" = "candidate_inc",
              "Challenger" = "candidate_chal",
              "Date" = "modeldate",
              "Num Electoral Votes" = "total_ev", 
              "Inc Chance of Winning EV" = "evprob_inc", 
              "Chal Chance of Winning EV" = "evprob_chal")
+             
 
-df2 <- df[, c(4,5,6)]
-df2 <- melt(df2, id.vars = c("Num Electoral Votes"))
+df2_evprob <- df_evprob[, c(4,5,6)]
+df2_evprob <- melt(df2_evprob, id.vars = c("Num Electoral Votes"))
 
-p <- ggplot(df2, aes(`Num Electoral Votes`, value, col = variable)) +
+highlight_df2 <- df2_evprob %>%
+  filter(variable == "Chal Chance of Winning EV" & `Num Electoral Votes` == 306)
+highlight2_df2 <- df2_evprob %>%
+  filter(variable == "Inc Chance of Winning EV" & `Num Electoral Votes` == 232)
+
+p_evprob <- ggplot(df2_evprob, aes(`Num Electoral Votes`, value, col = variable)) +
   geom_point()
-p <- p + scale_color_brewer(palette = "Set1", name = "Candidate", labels = c("Trump", "Biden")) + xlab("Total Electoral Votes") + ylab("Probability") + geom_vline(xintercept = 270, linetype = "dashed") + ggtitle("Forecasted probability of each EC outcome by candidate") + labs(subtitle = "(as of October 28th)") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
-p <- p + geom_point(data = highlight_df2, 
+p_evprob <- p_evprob + scale_color_brewer(palette = "Set1", name = "Candidate", labels = c("Trump", "Biden")) + xlab("Total Electoral Votes") + ylab("Probability") + geom_vline(xintercept = 270, linetype = "dashed") + ggtitle("Forecasted probability of each EC outcome by candidate") + labs(subtitle = "(as of October 28th)") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+p_evprob <- p_evprob + geom_point(data = highlight_df2, 
                     aes(x = highlight_df2$`Num Electoral Votes`, y = highlight_df2$value),
                     color = "black",
                     size = 3)
-p <- p + geom_point(data = highlight2_df2,
+p_evprob <- p_evprob + geom_point(data = highlight2_df2,
                     aes(x = highlight2_df2$`Num Electoral Votes`, y = highlight2_df2$value),
                     color = "black",
                     size = 3)
-p
-ggsave("EVProbPlot.png", plot = p, width = 6, height = 4, units = "in", dpi = 600)
+p_evprob   
+#ggsave("EVProbPlot.png", plot = p_evprob, width = 6, height = 4, units = "in", dpi = 600)
 
+###########
 
 ### EC vs Popular Vote 
-df <- read_csv("electoral_college_vs_popvote_oct28.csv")
-df$cycle <- NULL
-df$branch <- NULL
-df$model <- NULL
-df$candidate_3rd <- NULL
-df$ecwin_3rd <- NULL
-df$timestamp <- NULL
-df$modeldate <- as.Date(df$modeldate, format = "%m/%d/%Y")
-df <- rename(df, "Date" = "modeldate",
+df_ecvspop <- read_csv("electoral_college_vs_popvote_oct28.csv")
+df_ecvspop$cycle <- NULL
+df_ecvspop$branch <- NULL
+df_ecvspop$model <- NULL
+df_ecvspop$candidate_3rd <- NULL
+df_ecvspop$ecwin_3rd <- NULL
+df_ecvspop$timestamp <- NULL
+df_ecvspop$modeldate <- as.Date(df_ecvspop$modeldate, format = "%m/%d/%Y")
+df_ecvspop <- rename(df_ecvspop, "Date" = "modeldate",
              "Incumbent" = "candidate_inc",
              "Challenger" = "candidate_chal", 
              "LB popular vote" = "lower_bin_text",
@@ -120,24 +128,25 @@ df <- rename(df, "Date" = "modeldate",
              "Num sims" = "count",
              "Total sims" = "simulations")
 
-df$winner <- as.numeric(df$`Trump wins EC` > 0.5)
-df$winner <- as.character(df$winner)
-df$winner[df$winner == 1] <- "Trump"
-df$winner[df$winner == 0] <- "Biden"
-df$winner <- factor(df$winner)
 
-p <- qplot(df$winner, df$`Num sims`, data = df, geom = "boxplot", color = winner) + geom_jitter(alpha = I(0.1))
-p <- p + xlab("Winner") + ylab("Number of Sims")
-p <- p + scale_color_manual(values = c("Biden" = "blue",
+df_ecvspop$winner <- as.numeric(df_ecvspop$`Trump wins EC` > 0.5)
+df_ecvspop$winner <- as.character(df_ecvspop$winner)
+df_ecvspop$winner[df_ecvspop$winner == 1] <- "Trump"
+df_ecvspop$winner[df_ecvspop$winner == 0] <- "Biden"
+df_ecvspop$winner <- factor(df_ecvspop$winner)
+
+p_ecvspop <- qplot(df_ecvspop$winner, df_ecvspop$`Num sims`, data = df_ecvspop, geom = "boxplot", color = winner) + geom_jitter(alpha = I(0.1))
+p_ecvspop <- p_ecvspop + xlab("Winner") + ylab("Number of Sims")
+p_ecvspop <- p_ecvspop + scale_color_manual(values = c("Biden" = "blue",
                                        "Trump" = "red"))
-p <- p + ggtitle("Winners per simulation", subtitle = "(as of October 28th)") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
-p
+p_ecvspop <- p_ecvspop + ggtitle("Winners per simulation", subtitle = "(as of October 28th)") + theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+p_ecvspop
 
-ggsave("ECvsPop.png", plot = p, width = 6, height = 4, dpi = 600)
+#ggsave("ECvsPop.png", plot = p_ecvspop, width = 6, height = 4, dpi = 600)
 
 
-win <- df$`Trump EC votes`
-onwin <- df$`Biden EC votes`
+win <- df_ecvspop$`Trump EC votes`
+onwin <- df_ecvspop$`Biden EC votes`
 boxplot(win, onwin, 
         main = "EC votes per candidate",
         ylab = "Number of EC Votes", 
@@ -146,10 +155,9 @@ boxplot(win, onwin,
         col = c("red", "blue"),
         boxwex = 0.4)
 
-median(df$`Biden EC votes`)
-median(df$`Trump EC votes`)
-mean(df$`Biden EC votes`)
-mean(df$`Trump EC votes`)
-
+median(df_ecvspop$`Biden EC votes`)
+median(df_ecvspop$`Trump EC votes`)
+mean(df_ecvspop$`Biden EC votes`)
+mean(df_ecvspop$`Trump EC votes`)
 
 
